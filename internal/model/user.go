@@ -7,5 +7,5 @@ type User struct {
 	Username string    `gorm:"type:varchar(150); not null; unique" json:"name" binding:"required"`
 	Email    string    `gorm:"type:varchar(150); not null; unique" json:"email" binding:"required" valid:"email"`
 	Phone    string    `gorm:"type:varchar(150); not null; unique" json:"phone" binding:"required" valid:"numeric"`
-	Password string    `gorm:"type:varchar(150); not null; unique" json:"password" binding:"required"`
+	Password string    `gorm:"type:varchar(150); not null" json:"password" binding:"required"`
 }

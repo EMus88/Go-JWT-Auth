@@ -7,7 +7,6 @@ import (
 
 	"github.com/asaskevich/govalidator"
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type Handler struct {
@@ -50,16 +49,10 @@ func (h *Handler) SignUp(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	//do hesh password
-	bytes, err := bcrypt.GenerateFromPassword([]byte(request.Password), 14)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
-	}
 	//check user in db
 	var user model.User
 	user.Email = request.Email
-	user.Password = string(bytes)
+	user.Password = h.service.Auth.HashingPassword(request.Password)
 	id, err := h.service.Repository.GetUser(&user)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
@@ -71,5 +64,5 @@ func (h *Handler) SignUp(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusUnauthorized, gin.H{"token": t, "refresh token": rt})
+	c.JSON(http.StatusOK, gin.H{"access token": t, "refresh token": rt})
 }
