@@ -25,3 +25,15 @@ func (r *Repository) SaveUser(user *model.User) (string, error) {
 	}
 	return id, nil
 }
+
+func (r *Repository) GetUser(user *model.User) (string, error) {
+	var id string
+	q := `SELECT id FROM users
+	WHERE
+		email=$1 AND password=$2;`
+	r.db.QueryRow(context.Background(), q, user.Email, user.Password).Scan(&id)
+	if id == "" {
+		return "", errors.New("error: user not found")
+	}
+	return id, nil
+}
