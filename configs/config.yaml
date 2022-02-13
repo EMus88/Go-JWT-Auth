@@ -9,6 +9,6 @@ db:
     sslmode: "disable"
 
     migration:
-                isAllowed: true
+                isAllowed: false
 
 

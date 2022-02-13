@@ -37,11 +37,17 @@ func main() {
 	//init routes
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
+
 	router.Use(h.AuthMiddleware)
+
 	router.POST("/auth/signIn", h.SignIn)
 	router.POST("/auth/signUp", h.SignUp)
+	router.POST("/auth/update", h.TokenRefreshing)
 	router.POST("/hello", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"Hello": "World"})
+	})
+	router.NoRoute(func(c *gin.Context) {
+		c.JSON(http.StatusBadRequest, gin.H{"Error": "Not allowed request"})
 	})
 
 	//run server

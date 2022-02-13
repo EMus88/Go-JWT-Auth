@@ -4,6 +4,7 @@ import (
 	"JWT_auth/internal/model"
 	"JWT_auth/internal/repository"
 	"crypto/sha1"
+	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -41,11 +42,12 @@ func (a *Auth) CreateUser(user *model.User) error {
 	return nil
 }
 
-func (a *Auth) GenerateTokenPair(id string) (string, string, error) {
+func (a *Auth) GenerateTokenPair(id string, role string) (string, string, error) {
 	//create access token
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
-		Issuer:    id,
-		ExpiresAt: time.Now().Add(time.Minute * 2).Unix(),
+		Id:        id,
+		Issuer:    role,
+		ExpiresAt: time.Now().Add(time.Second * 30).Unix(),
 		Subject:   "access",
 	})
 	token, err := claims.SignedString([]byte(os.Getenv("SECRET")))
@@ -54,7 +56,8 @@ func (a *Auth) GenerateTokenPair(id string) (string, string, error) {
 	}
 	//create refresh token
 	rtClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
-		Issuer:    id,
+		Id:        id,
+		Issuer:    role,
 		ExpiresAt: time.Now().Add(time.Hour * 1000).Unix(),
 		Subject:   "refresh",
 	})
@@ -70,4 +73,20 @@ func (a *Auth) HashingPassword(password string) string {
 	h.Write([]byte(password))
 	hash := h.Sum([]byte(os.Getenv("SALT")))
 	return fmt.Sprintf("%x", hash)
+}
+
+func (a *Auth) ValidateToken(bearertoken string, tokenType string) (string, string, error) {
+
+	token, err := jwt.ParseWithClaims(bearertoken, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("SECRET")), nil
+	})
+	if err != nil {
+		return "", "", err
+	}
+	claims := token.Claims.(*jwt.StandardClaims)
+	if claims.Subject != tokenType {
+		return "", "", errors.New("error: not found valid access token")
+	}
+
+	return claims.Id, claims.Issuer, nil
 }

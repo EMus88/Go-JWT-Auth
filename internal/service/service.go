@@ -8,7 +8,7 @@ import (
 type Repository interface {
 	//auth methods
 	SaveUser(user *model.User) (string, error)
-	GetUser(user *model.User) (string, error)
+	GetUser(user *model.User) (string, string, error)
 }
 
 type Service struct {
