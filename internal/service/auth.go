@@ -76,16 +76,18 @@ func (a *Auth) HashingPassword(password string) string {
 }
 
 func (a *Auth) ValidateToken(bearertoken string, tokenType string) (string, string, error) {
-
+	//validate token
 	token, err := jwt.ParseWithClaims(bearertoken, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(os.Getenv("SECRET")), nil
 	})
 	if err != nil {
 		return "", "", err
 	}
+	//read claims
 	claims := token.Claims.(*jwt.StandardClaims)
+	//check token type
 	if claims.Subject != tokenType {
-		return "", "", errors.New("error: not found valid access token")
+		return "", "", errors.New("error: not found valid token")
 	}
 
 	return claims.Id, claims.Issuer, nil
