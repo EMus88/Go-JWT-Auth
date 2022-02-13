@@ -14,6 +14,7 @@ func NewRepository(db DB) *Repository {
 	return &Repository{db: db}
 }
 
+//save user in db
 func (r *Repository) SaveUser(user *model.User) (string, error) {
 	var id string
 	q := `INSERT INTO users(username,email,phone,password)
@@ -26,6 +27,7 @@ func (r *Repository) SaveUser(user *model.User) (string, error) {
 	return id, nil
 }
 
+//get user from db
 func (r *Repository) GetUser(user *model.User) (string, string, error) {
 	var id, role string
 	q := `SELECT id,role FROM users
